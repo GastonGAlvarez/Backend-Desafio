@@ -4,7 +4,6 @@ const { Router } = express;
 const router = Router();
 
 
-
 // Products
 const products = [
     {name: "Producto 1", price: 100, id: 1},
@@ -15,11 +14,14 @@ const products = [
 ];
 
 
-// CRUD OPERATIONS
+//---- CRUD OPERATIONS ----//
+
+// GET ALL PRODUCTS
 router.get('/', (req, res) => {
     res.send(products)
 })
 
+// GET ONE PRODUCT BY ID
 router.get('/:id', (req, res) => {
     const { id } = req.params;
 
@@ -28,17 +30,54 @@ router.get('/:id', (req, res) => {
     if(index != -1){
         res.send(products[index]);
     }
-    else res.status(404).send("No existe un producto con ese ID");
+    else res.status(404).send({error: 'Producto no encontrado'});
 })
 
-// router.post()
+// POST ONE PRODUCT
+router.post('/', (req, res) => {
+    const { name, price } = req.body;
 
-// router.put()
+    const id = products[products.length - 1].id + 1;
 
-// router.delete()
+    const newProduct = { name, price, id};
 
+    products.push(newProduct);
 
+    res.status(201).send(newProduct);
+})
 
+// PUT ONE PRODUCT BY ID
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, price } = req.body;
+
+    const product = products.find(elem => elem.id == id);
+
+    if(!product){
+        res.status(404).send({error: 'Producto no encontrado'});
+        return
+    }
+
+    product.name = name;
+    product.price = price;
+
+    res.sendStatus(201);
+})
+
+// DELETE ONE PRODUCT BY ID
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+
+    const index = products.findIndex(elem => elem.id == id)
+
+    if(index == -1){
+        res.status(404).send({error: 'Producto no encontrado'});
+        return
+    }
+
+    products.splice(index, 1);
+    res.status(200).send('Producto eliminado');
+})
 
 
 module.exports = router;
